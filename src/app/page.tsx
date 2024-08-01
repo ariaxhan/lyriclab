@@ -6,6 +6,7 @@ import { LogoutButton } from "./(auth)/components/LogoutButton"
 import styles from "./styles/Home.module.css"
 import getCurrentUser from "./users/queries/getCurrentUser"
 import { useState } from "react"
+import analyzeMusic from "../mutations/analyzeMusic"
 
 interface AnalysisResults {
   wordCount: number
@@ -23,15 +24,28 @@ const Home: React.FC = () => {
   const [playlist, setPlaylist] = useState<string[] | null>(null)
 
   const handleAnalyze = async (): Promise<void> => {
-    // Here you would call your API to perform the analysis
-    // For now, let's just set some dummy data
-    setAnalysisResults({
-      wordCount: 100,
-      uniqueWords: 50,
-      sentiment: "Positive",
-      commonThemes: ["Love", "Hope", "Dreams"],
-    })
-    setPlaylist(["Song 1", "Song 2", "Song 3"])
+    try {
+      // Call the analyzeMusic mutation
+      const response = await analyzeMusic(
+        { name: input },
+        { session: {} } // Replace with actual session context if needed
+      )
+
+      // Print the entire response
+      console.log("Full response from analyzeMusic:", response)
+
+      // Set analysis results based on the response from ChatGroq
+      setAnalysisResults({
+        wordCount: response.wordCount,
+        uniqueWords: response.uniqueWords,
+        sentiment: response.sentiment,
+        commonThemes: response.commonThemes,
+      })
+
+      setPlaylist(["Song 1", "Song 2", "Song 3"]) // Dummy data, replace with actual playlist
+    } catch (error) {
+      console.error("Error analyzing input:", error)
+    }
   }
 
   return (
